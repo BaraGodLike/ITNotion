@@ -3,7 +3,7 @@ using ITNotion.Storage;
 
 namespace ITNotion.Authorization;
 
-public partial class Registry : IAuthorization
+public partial class Registry(Escape escape) : IAuthorization
 {
     private string? Name { get; set; }
     private string? Password { get; set; }
@@ -14,18 +14,20 @@ public partial class Registry : IAuthorization
     }
 
 
-    public void Authorize()
+    public async Task Authorize()
     {
+        escape.IsPressedEscape = false;
+        Console.WriteLine("Вы перешли в обычный режим");
         InputName();
         InputPassword();
-        Storage.Storage.SaveRegistryUser(new AuthorizationUserDto(this));
-        Console.WriteLine("Вы успешно зарегестрировались!");
-        Log.LogAuthorization(new AuthorizationUserDto(this), "register");
+        await Storage.Storage.SaveRegistryUser(new AuthorizationUserDto(this));
+        if (!escape.IsPressedEscape) Console.WriteLine("Вы успешно зарегестрировались!");
+        await Log.LogAuthorization(new AuthorizationUserDto(this), "register");
     }
 
-    private void InputName()
+    private async Task InputName()
     {
-        while (true)
+        while (!escape.IsPressedEscape)
         {
             Console.Write("Введите имя пользователя: ");
             var name = Console.ReadLine();
@@ -46,9 +48,9 @@ public partial class Registry : IAuthorization
         }
     }
 
-    private void InputPassword()
+    private async Task InputPassword()
     {
-        while (true)
+        while (!escape.IsPressedEscape)
         {
             Console.Write("Введите пароль длиной 3-20 символов (a-Z, 0-9, _): ");
             var password = Console.ReadLine();
@@ -66,7 +68,7 @@ public partial class Registry : IAuthorization
 
             Console.Write("Повторите пароль: ");
             var passwordRepeat = Console.ReadLine();
-            while (!password.Equals(passwordRepeat))
+            while (!password.Equals(passwordRepeat) && !escape.IsPressedEscape)
             {
                 Console.WriteLine("Пароли не совпадают.");
                 Console.Write("Повторите пароль: ");

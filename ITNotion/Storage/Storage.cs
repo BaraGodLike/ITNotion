@@ -18,7 +18,7 @@ public static class Storage
         return File.Exists($"Storage/Users/{name}.json");
     }
 
-    public static async void SaveRegistryUser(AuthorizationUserDto user)
+    public static async Task SaveRegistryUser(AuthorizationUserDto user)
     {
         if (!Directory.Exists("Storage/Users/"))
         {

@@ -1,4 +1,4 @@
 ﻿using ITNotion.Authorization;
 
-IAuthorization log = new LogIn();
-log.Authorize();
+var start = new Start();
+await start.StartProgram();

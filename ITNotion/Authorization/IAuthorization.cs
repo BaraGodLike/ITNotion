@@ -2,7 +2,7 @@
 
 public interface IAuthorization
 {
-    public void Authorize();
+    public Task Authorize();
     public string? GetName();
     
 }

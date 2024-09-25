@@ -2,16 +2,24 @@
 
 namespace ITNotion.Authorization;
 
-public class LogIn : IAuthorization
+public class LogIn(Escape escape) : IAuthorization
 {
     private string? Name { get; set; }
     private string? Password { get; set; }
-    public void Authorize()
+    public async Task Authorize()
     {
+        escape.IsPressedEscape = false;
+        Console.WriteLine("Вы перешли в обычный режим");
         InputName();
-        if (!InputPassword()) return;
-        Console.WriteLine($"Добро пожаловать, {Name}");
-        Log.LogAuthorization(new AuthorizationUserDto(this), "log in");
+        while (!InputPassword().IsCompleted)
+        {
+            if (escape.IsPressedEscape) break;
+        }
+        if (Password != null)
+        {
+            Console.WriteLine($"Добро пожаловать, {Name}");
+            await Log.LogAuthorization(new AuthorizationUserDto(this), "log in");
+        }
     }
 
     public string? GetName()
@@ -19,9 +27,9 @@ public class LogIn : IAuthorization
         return Name;
     }
     
-    private void InputName()
+    private async Task InputName()
     {
-        while (true)
+        while (!escape.IsPressedEscape)
         {
             Console.Write("Введите имя пользователя: ");
             var name = Console.ReadLine();
@@ -42,15 +50,15 @@ public class LogIn : IAuthorization
         }
     }
 
-    private bool InputPassword()
+    private async Task InputPassword()
     {
         Console.Write("Введите пароль: ");
         var password = Console.ReadLine();
         var attempt = 3;
-        while (!IsCorrectPassword(password!))
+        while (!IsCorrectPassword(password!) && !escape.IsPressedEscape)
         {
             Console.WriteLine($"Неверный пароль. Осталось попыток: {attempt}");
-            Log.LogAuthorization(new AuthorizationUserDto(this), "failed login attempt");
+            await Log.LogAuthorization(new AuthorizationUserDto(this), "failed login attempt");
             Console.Write("Введите пароль: ");
             password = Console.ReadLine();
             if (attempt-- <= 0) break;
@@ -59,11 +67,10 @@ public class LogIn : IAuthorization
         if (attempt <= 0)
         {
             Console.WriteLine("Слишком много попыток!");
-            Log.LogAuthorization(new AuthorizationUserDto(this), "too many login attempts");
-            return false;
+            await Log.LogAuthorization(new AuthorizationUserDto(this), "too many login attempts");
+            return;
         }
         Password = password!;
-        return true;
     }
 
     private bool IsCorrectPassword(string password)
