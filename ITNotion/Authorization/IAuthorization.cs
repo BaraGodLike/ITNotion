@@ -2,7 +2,6 @@
 
 public interface IAuthorization
 {
-    public void Authorize();
-    public string? GetName();
+    public User.User? Authorize();
     
 }

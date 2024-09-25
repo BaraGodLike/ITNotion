@@ -1,4 +1,4 @@
 ﻿using ITNotion.Authorization;
+using ITNotion.Pages;
 
-IAuthorization log = new LogIn();
-log.Authorize();
+var start = new Start();

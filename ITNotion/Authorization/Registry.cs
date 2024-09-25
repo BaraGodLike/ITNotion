@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using ITNotion.Storage;
+using ITNotion.User;
 
 namespace ITNotion.Authorization;
 
@@ -7,20 +8,21 @@ public partial class Registry : IAuthorization
 {
     private string? Name { get; set; }
     private string? Password { get; set; }
-
-    public string? GetName()
-    {
-        return Name;
-    }
-
-
-    public void Authorize()
+    private User.User? _user;
+    // private UserDto? _userDto;
+    
+    public User.User? Authorize()
     {
         InputName();
         InputPassword();
-        Storage.Storage.SaveRegistryUser(new AuthorizationUserDto(this));
+        
+        _user = new User.User(Name!, Password!);
+        // _userDto = new UserDto(_user);
+        
+        Storage.Storage.SaveRegistryUser(new UserDto(_user));
+        
         Console.WriteLine("Вы успешно зарегестрировались!");
-        Log.LogAuthorization(new AuthorizationUserDto(this), "register");
+        return _user;
     }
 
     private void InputName()
@@ -72,7 +74,6 @@ public partial class Registry : IAuthorization
                 Console.Write("Повторите пароль: ");
                 passwordRepeat = Console.ReadLine();
             }
-
             Password = Storage.Storage.HashPassword(password);
             break;
         }

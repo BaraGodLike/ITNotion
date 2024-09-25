@@ -1,4 +1,5 @@
 ﻿using ITNotion.Storage;
+using ITNotion.User;
 
 namespace ITNotion.Authorization;
 
@@ -6,19 +7,20 @@ public class LogIn : IAuthorization
 {
     private string? Name { get; set; }
     private string? Password { get; set; }
-    public void Authorize()
+    private User.User? _user;
+    private UserDto? _userDto;
+    
+    public User.User? Authorize()
     {
         InputName();
-        if (!InputPassword()) return;
+        if (!InputPassword()) return _user;
+        _user = new User.User(Name!, Password);
+        _userDto = new UserDto(_user);
         Console.WriteLine($"Добро пожаловать, {Name}");
-        Log.LogAuthorization(new AuthorizationUserDto(this), "log in");
+        Log.LogInformation(_userDto, "log in");
+        return _user;
     }
 
-    public string? GetName()
-    {
-        return Name;
-    }
-    
     private void InputName()
     {
         while (true)
@@ -50,7 +52,7 @@ public class LogIn : IAuthorization
         while (!IsCorrectPassword(password!))
         {
             Console.WriteLine($"Неверный пароль. Осталось попыток: {attempt}");
-            Log.LogAuthorization(new AuthorizationUserDto(this), "failed login attempt");
+            Log.LogInformation(_userDto!, "failed login attempt");
             Console.Write("Введите пароль: ");
             password = Console.ReadLine();
             if (attempt-- <= 0) break;
@@ -59,7 +61,7 @@ public class LogIn : IAuthorization
         if (attempt <= 0)
         {
             Console.WriteLine("Слишком много попыток!");
-            Log.LogAuthorization(new AuthorizationUserDto(this), "too many login attempts");
+            Log.LogInformation(_userDto!, "too many login attempts");
             return false;
         }
         Password = password!;
@@ -68,6 +70,6 @@ public class LogIn : IAuthorization
 
     private bool IsCorrectPassword(string password)
     {
-        return Storage.Storage.HashPassword(password).Equals(Storage.Storage.UserFromJson(Name!).Result?["User"]["Password"]);
+        return Storage.Storage.HashPassword(password).Equals(Storage.Storage.UserFromJson(Name!).Result?.User.Password);
     }
 }
