@@ -9,33 +9,35 @@ public class LogIn : IAuthorization
     private string? Password { get; set; }
     private User.User? _user;
     private UserDto? _userDto;
+    private readonly Storage.Storage _storage = new(new LocalRepository());
     
-    public User.User? Authorize()
+    public async Task<User.User?> Authorize()
     {
-        InputName();
-        if (!InputPassword()) return _user;
-        _user = new User.User(Name!, Password);
+        await InputName();
+        if (!await InputPassword()) return _user;
+        
+        _user = new User.User(Name!, Password!);
         _userDto = new UserDto(_user);
-        Console.WriteLine($"Добро пожаловать, {Name}");
-        Log.LogInformation(_userDto, "log in");
+        
+        await Console.Out.WriteLineAsync($"Добро пожаловать, {Name}");
         return _user;
     }
 
-    private void InputName()
+    private async Task InputName()
     {
         while (true)
         {
-            Console.Write("Введите имя пользователя: ");
-            var name = Console.ReadLine();
+            await Console.Out.WriteAsync("Введите имя пользователя: ");
+            var name = await Console.In.ReadLineAsync();
             if (name == null)
             {
-                Console.WriteLine("Имя пользователя не может быть пустым.");
+                await Console.Out.WriteLineAsync("Имя пользователя не может быть пустым.");
                 continue;
             }
             
-            if (!Storage.Storage.HasNicknameInStorage(name))
+            if (!_storage.HasNicknameInStorage(name))
             {
-                Console.WriteLine("Польозователь не найден.");
+                await Console.Out.WriteLineAsync("Пользователь не найден.");
                 continue;
             }
 
@@ -44,23 +46,23 @@ public class LogIn : IAuthorization
         }
     }
 
-    private bool InputPassword()
+    private async Task<bool> InputPassword()
     {
-        Console.Write("Введите пароль: ");
-        var password = Console.ReadLine();
+        await Console.Out.WriteAsync("Введите пароль: ");
+        var password = await Console.In.ReadLineAsync();
         var attempt = 3;
         while (!IsCorrectPassword(password!))
         {
-            Console.WriteLine($"Неверный пароль. Осталось попыток: {attempt}");
+            await Console.Out.WriteLineAsync($"Неверный пароль. Осталось попыток: {attempt}");
             Log.LogInformation(_userDto!, "failed login attempt");
-            Console.Write("Введите пароль: ");
-            password = Console.ReadLine();
+            await Console.Out.WriteAsync("Введите пароль: ");
+            password = await Console.In.ReadLineAsync();
             if (attempt-- <= 0) break;
         }
 
         if (attempt <= 0)
         {
-            Console.WriteLine("Слишком много попыток!");
+            await Console.Out.WriteLineAsync("Слишком много попыток!");
             Log.LogInformation(_userDto!, "too many login attempts");
             return false;
         }
@@ -70,6 +72,7 @@ public class LogIn : IAuthorization
 
     private bool IsCorrectPassword(string password)
     {
-        return Storage.Storage.HashPassword(password).Equals(Storage.Storage.UserFromJson(Name!).Result?.User.Password);
+        return Storage.Storage.HashPassword(password).
+            Equals(_storage.GetUserFromStorage(Name!).Result?.User!.Password);
     }
 }

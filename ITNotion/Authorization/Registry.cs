@@ -9,37 +9,37 @@ public partial class Registry : IAuthorization
     private string? Name { get; set; }
     private string? Password { get; set; }
     private User.User? _user;
-    // private UserDto? _userDto;
+    private readonly Storage.Storage _storage = new(new LocalRepository());
     
-    public User.User? Authorize()
+    public async Task<User.User?> Authorize()
     {
-        InputName();
-        InputPassword();
+        await InputName();
+        await InputPassword();
         
         _user = new User.User(Name!, Password!);
-        // _userDto = new UserDto(_user);
         
-        Storage.Storage.SaveRegistryUser(new UserDto(_user));
-        
-        Console.WriteLine("Вы успешно зарегестрировались!");
+        var taskSave = _storage.SaveRegistryUser(new UserDto(_user));
+        var taskOutput = Console.Out.WriteLineAsync("Вы успешно зарегестрировались!");
+
+        await Task.WhenAll(taskSave, taskOutput);
         return _user;
     }
 
-    private void InputName()
+    private async Task InputName()
     {
         while (true)
         {
             Console.Write("Введите имя пользователя: ");
-            var name = Console.ReadLine();
+            var name = await Console.In.ReadLineAsync();
             if (name == null)
             {
-                Console.WriteLine("Имя пользователя не может быть пустым.");
+                await Console.Out.WriteLineAsync("Имя пользователя не может быть пустым.");
                 continue;
             }
 
-            if (Storage.Storage.HasNicknameInStorage(name))
+            if (_storage.HasNicknameInStorage(name))
             {
-                Console.WriteLine("Данное имя пользователя уже занято.");
+                await Console.Out.WriteLineAsync("Данное имя пользователя уже занято.");
                 continue;
             }
 
@@ -48,31 +48,31 @@ public partial class Registry : IAuthorization
         }
     }
 
-    private void InputPassword()
+    private async Task InputPassword()
     {
         while (true)
         {
             Console.Write("Введите пароль длиной 3-20 символов (a-Z, 0-9, _): ");
-            var password = Console.ReadLine();
+            var password = await Console.In.ReadLineAsync();
             if (password == null || password.Length is < 3 or > 20)
             {
-                Console.WriteLine("Пароль должен содержать от 3 до 20 символов.");
+                await Console.Out.WriteLineAsync("Пароль должен содержать от 3 до 20 символов.");
                 continue;
             }
 
             if (!MyRegex().IsMatch(password))
             {
-                Console.WriteLine("Пароль может содержать только латинские буквы, цифры и _");
+                await Console.Out.WriteLineAsync("Пароль может содержать только латинские буквы, цифры и _");
                 continue;
             }
 
             Console.Write("Повторите пароль: ");
-            var passwordRepeat = Console.ReadLine();
+            var passwordRepeat = await Console.In.ReadLineAsync();
             while (!password.Equals(passwordRepeat))
             {
-                Console.WriteLine("Пароли не совпадают.");
+                await Console.Out.WriteLineAsync("Пароли не совпадают.");
                 Console.Write("Повторите пароль: ");
-                passwordRepeat = Console.ReadLine();
+                passwordRepeat = await Console.In.ReadLineAsync();
             }
             Password = Storage.Storage.HashPassword(password);
             break;

@@ -1,6 +1,4 @@
-﻿using System.Transactions;
-
-namespace ITNotion.Commands;
+﻿namespace ITNotion.Commands;
 
 public class HelpCommand : AbstractCommand
 {
@@ -8,11 +6,12 @@ public class HelpCommand : AbstractCommand
     {
         _map = map;
         Description = "вывод списка доступных команд";
+        Name = "help";
     }
     
     private readonly Dictionary<string, AbstractCommand> _map;
 
-    public override bool Execute()
+    public override async Task<bool> Execute(string? parameter = null)
     {
         Console.WriteLine("Список доступных комманд:");
         foreach (var key in _map)

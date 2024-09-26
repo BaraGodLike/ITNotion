@@ -1,13 +1,15 @@
 ﻿using ITNotion.Commands;
+using ITNotion.Commands.StartCommands;
 
 namespace ITNotion.Pages;
 
-public class Start : ICommands
+public class Start : ICommandPage
 {
-    public Start()
+    public async Task<ICommandPage> AsyncInit()
     {
-        ExecuteCommand(Help);
-        ExecuteCommand(CommandHandler());
+        await ExecuteCommand(Help);
+        await ExecuteCommand(await CommandHandler());
+        return this;
     }
     
     private readonly CommandReader _commandReader = new CommandReader(null);
@@ -21,28 +23,28 @@ public class Start : ICommands
 
     private static readonly HelpCommand Help = new HelpCommand(Commands);
     
-    public void ExecuteCommand(AbstractCommand command)
+    public async Task ExecuteCommand(AbstractCommand command)
     {
         while (command == Help)
         {
-            Help.Execute();
+            await Help.Execute();
             Console.WriteLine($"\t--help\t{Help.Description}");
-            ExecuteCommand(CommandHandler());
+            await ExecuteCommand(await CommandHandler());
         }
 
-        command.Execute();
+        await command.Execute();
     }
 
-    public AbstractCommand CommandHandler()
+    public async Task<AbstractCommand> CommandHandler()
     {
-        var commandString = _commandReader.GetCommand();
+        var commandString =  await _commandReader.GetCommand();
         if (commandString == "help") return Help;
         var command = Commands.GetValueOrDefault(commandString);
         while (command == null) 
         {
             Console.WriteLine("Неизвестная команда. --help для вывода списка доступных команд");
             
-            command = Commands.GetValueOrDefault(_commandReader.GetCommand());
+            command = Commands.GetValueOrDefault(await _commandReader.GetCommand());
         }
 
         return command;

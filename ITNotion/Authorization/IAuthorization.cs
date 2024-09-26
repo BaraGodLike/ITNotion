@@ -2,6 +2,6 @@
 
 public interface IAuthorization
 {
-    public User.User? Authorize();
+    public Task<User.User?> Authorize();
     
 }

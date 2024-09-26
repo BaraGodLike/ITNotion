@@ -1,4 +1,3 @@
-﻿using ITNotion.Authorization;
-using ITNotion.Pages;
+﻿using ITNotion.Pages;
 
-var start = new Start();
+await new Start().AsyncInit();

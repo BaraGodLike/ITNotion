@@ -1,10 +1,10 @@
-﻿using System.Text.Json;
+﻿using ITNotion.Notes;
 using ITNotion.User;
 using Microsoft.VisualBasic;
 
 namespace ITNotion.Storage;
 
-public static class Storage
+public class Storage(IStorage repo) : IStorage
 {
     public static string HashPassword(string password)
     {
@@ -12,25 +12,23 @@ public static class Storage
             t * (int) Math.Pow(7, i)).Sum());
     }
 
-    public static bool HasNicknameInStorage(string name)
+    public bool HasNicknameInStorage(string name)
     {
-        return File.Exists($"Storage/Users/{name}.json");
+        return repo.HasNicknameInStorage(name);
     }
 
-    public static async void SaveRegistryUser(UserDto user)
+    public async Task SaveRegistryUser(UserDto user)
     {
-        if (!Directory.Exists("Storage/Users/"))
-        {
-            Directory.CreateDirectory("Storage/Users");
-        }
-        await using var createStream = File.Create($"Storage/Users/{user.User!.Name}.json");
-        await JsonSerializer.SerializeAsync(createStream, user);
-        
+        await repo.SaveRegistryUser(user);
     }
 
-    public static async Task<UserDto?> UserFromJson(string name) 
+    public async Task<UserDto?> GetUserFromStorage(string name)
     {
-        await using var openStream = File.OpenRead($"Storage/Users/{name}.json");
-        return await JsonSerializer.DeserializeAsync<UserDto>(openStream);
+        return await repo.GetUserFromStorage(name);
+    }
+
+    public async Task CreateNewNote(Note note)
+    {
+        await repo.CreateNewNote(note);
     }
 }

@@ -2,16 +2,18 @@
 
 public class CommandHistory
 {
-    private readonly AbstractCommand[] _history = new AbstractCommand[10];
-    private int _last = -1;
+    private readonly List<AbstractCommand> _history = new List<AbstractCommand>(10);
+    
 
     public void Put(AbstractCommand command)
     {
-        _history[++_last] = command;
+        _history.Add(command);
     }
 
     public AbstractCommand Pop()
     {
-        return _history[_last--];
+        var last = _history.Last();
+        _history.Remove(last);
+        return last;
     }
 }

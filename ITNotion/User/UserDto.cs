@@ -1,5 +1,3 @@
 ﻿namespace ITNotion.User;
 
-public record UserDto(User? User)
-{
-}
+public record UserDto(User? User);

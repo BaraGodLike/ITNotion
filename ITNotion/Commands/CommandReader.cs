@@ -4,7 +4,7 @@ public class CommandReader(User.User? user)
 {
     private User.User? User { get; set; } = user;
 
-    public string GetCommand()
+    public async Task<string> GetCommand()
     {
         while (true)
         {
