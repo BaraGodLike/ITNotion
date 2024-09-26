@@ -1,5 +1,6 @@
 ﻿using ITNotion.Commands;
 using ITNotion.Commands.MenuCommands;
+using ITNotion.Exceptions;
 using ITNotion.Storage;
 using ITNotion.User;
 
@@ -31,11 +32,12 @@ public class Menu(User.User user) : ICommandPage
     
     public async Task ExecuteCommand(AbstractCommand command)
     {
+        
         while (command == _help)
         {
             await _help.Execute();
             Console.WriteLine($"\t--help\t{_help.Description}");
-            await ExecuteCommand(await CommandHandler());
+            command = await CommandHandler();
         }
         
         var execute = command.Execute();
@@ -50,9 +52,17 @@ public class Menu(User.User user) : ICommandPage
         var command = _commands!.GetValueOrDefault(commandString);
         while (command == null) 
         {
-            Console.WriteLine("Неизвестная команда. --help для вывода списка доступных команд");
-            
-            command = _commands!.GetValueOrDefault(await _commandReader.GetCommand());
+            try
+            {
+                throw new UnknownCommandException();
+            }
+            catch (UnknownCommandException e)
+            {
+                await Log.LogWarning(e, new UserDto(User));
+                Console.WriteLine(e.Message);
+
+                command = _commands!.GetValueOrDefault(await _commandReader.GetCommand());
+            }
         }
 
         return command;

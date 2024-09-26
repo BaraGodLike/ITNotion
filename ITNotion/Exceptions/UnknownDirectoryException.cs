@@ -1,9 +1,9 @@
 ﻿namespace ITNotion.Exceptions;
 
-public class UnknownDirectoryException : Exception
+public class UnknownDirectoryException() : Exception("Репозиторий не найден")
 {
-    public UnknownDirectoryException()
+    public override string ToString()
     {
-        Console.WriteLine("Репозиторий не найден");
+        return "go to unknown repo";
     }
 }

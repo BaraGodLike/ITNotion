@@ -1,17 +1,21 @@
 ﻿using ITNotion.Commands;
 using ITNotion.Notes;
+using ITNotion.Storage;
 
 namespace ITNotion.User;
 
-public class User(string name, string password)
+public class User(string name, string? password)
 {
     public string Name { get; } = name;
     public string? Password { get; } = password;
-    public CommandHistory CommandHistory { get; } = new CommandHistory();
-    public DirectoryNotes Sources { get; init; } = new DirectoryNotes("Main", "/");
+    public CommandHistory CommandHistory { get; } = new();
+    public DirectoryNotes Sources { get; } = new("Notes", null);
+    private readonly Storage.Storage _storage = new(new LocalRepository());
 
     public async Task AddSource(AbstractSource source)
     {
-        await Sources.AddSource(source);
+        var t1 = Sources.AddSource(source);
+        var t2 = _storage.CreateNewNote(source);
+        await Task.WhenAll(t1, t2);
     }
 }

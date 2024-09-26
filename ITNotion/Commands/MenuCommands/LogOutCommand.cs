@@ -14,11 +14,10 @@ public class LogOutCommand : AbstractUserCommand
     
     public override async Task<bool> Execute(string? parameter = null)
     {
-        var taskLog = Log.LogInformation(new UserDto(User), "вышел из аккаунта.");
+        var taskLog = Log.LogInformation(new UserDto(User), "log out.");
         var write = Console.Out.WriteLineAsync("Вы вышли из аккаунта.");
-        var goToStart = new Start().AsyncInit();
-
-        await Task.WhenAll(taskLog, write, goToStart);
+        await Task.WhenAll(taskLog, write);
+        await new Start().AsyncInit();
         
         return false;
     }

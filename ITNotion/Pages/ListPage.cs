@@ -26,12 +26,13 @@ public class ListPage(User.User user) : ICommandPage
             {"open", null},
             {"delete", null}
         };
+        await PrintCurrentDirectory();
+        Console.WriteLine();
         _help = new HelpCommand(_commands);
         var taskHelp = ExecuteCommand(_help);
         var taskNewCommand = ExecuteCommand(await CommandHandler());
         await Task.WhenAll(taskHelp, taskNewCommand);
         Console.WriteLine();
-        await PrintCurrentDirectory();
         return this;
     }
     
@@ -45,7 +46,7 @@ public class ListPage(User.User user) : ICommandPage
         {
             await _help.Execute();
             Console.WriteLine($"\t--help\t{_help.Description}");
-            await ExecuteCommand(await CommandHandler());
+            command = await CommandHandler();
         }
         
         await command.Execute();
@@ -62,29 +63,42 @@ public class ListPage(User.User user) : ICommandPage
 
     public async Task ToDirectory(string? name)
     {
-        
-        foreach (var source in _currentDirectory!.Directory.
-                     Where(source => source.GetType() == typeof(DirectoryNotes)).
-                     Where(source => source.Name.Equals(name)))
+        try
         {
-            _currentDirectory = (DirectoryNotes) source;
-            return;
+            foreach (var source in _currentDirectory!.Directory
+                         .Where(source => source.GetType() == typeof(DirectoryNotes))
+                         .Where(source => source.Name.Equals(name)))
+            {
+                _currentDirectory = (DirectoryNotes)source;
+                return;
+            }
+            
+            throw new UnknownDirectoryException();
         }
-
-        await Log.LogWarning(new UserDto(User), "cd unknown repo");
-        throw new UnknownDirectoryException();
+        catch (UnknownDirectoryException e)
+        {
+            await Log.LogWarning(e, new UserDto(User));
+            Console.WriteLine(e.Message);
+        }
     }
     
     public async Task<AbstractCommand> CommandHandler()
-    {
+    {   
         var commandString = await _commandReader!.GetCommand();
         if (commandString == "help") return _help!;
         var command = _commands!.GetValueOrDefault(commandString);
         while (command == null) 
         {
-            Console.WriteLine("Неизвестная команда. --help для вывода списка доступных команд");
-            
-            command = _commands!.GetValueOrDefault(await _commandReader.GetCommand());
+            try
+            {
+                throw new UnknownCommandException();
+            }
+            catch (UnknownCommandException e)
+            {
+                await Log.LogWarning(e, new UserDto(User));
+                Console.WriteLine(e.Message);
+                command = _commands!.GetValueOrDefault(await _commandReader.GetCommand());
+            }
         }
 
         return command;

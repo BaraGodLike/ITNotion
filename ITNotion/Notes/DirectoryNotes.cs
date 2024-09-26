@@ -1,10 +1,11 @@
 ﻿namespace ITNotion.Notes;
 
-public class DirectoryNotes(string name, string directory) : AbstractSource(name, directory)
+public class DirectoryNotes(string name, DirectoryNotes? parent) : AbstractSource(name, parent)
 {
+
+    public SortedSet<AbstractSource>? Backup { get; private set; } = null;
+    public SortedSet<AbstractSource> Directory { get; } = [];
     
-    public SortedSet<AbstractSource>? Backup { get; private set; }
-    public SortedSet<AbstractSource> Directory { get; init; } = [];
     
     public override async Task MakeBackup()
     {

@@ -8,6 +8,6 @@ public interface IStorage
     Task SaveRegistryUser(UserDto user);
     bool HasNicknameInStorage(string name);
     Task<UserDto?> GetUserFromStorage(string name);
-    Task CreateNewNote(Note note);
+    Task CreateNewNote(AbstractSource source);
 
 }

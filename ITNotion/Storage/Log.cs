@@ -5,7 +5,10 @@ namespace ITNotion.Storage;
 
 public static class Log
 {
-    public static async Task LogInformation(UserDto user, string text)
+
+    private static UserDto unregUser = new UserDto(new User.User("Unauthorized", null));
+    
+    public static async Task LogInformation(UserDto? user, string text)
     {
         if (!Directory.Exists("Storage/Logs/"))
         {
@@ -13,7 +16,7 @@ public static class Log
         }
         
         await File.AppendAllTextAsync("Storage/Logs/logs.log",
-            $"[{DateTime.Now}] -INFORMATION- {user.User?.Name} {text}.\n");
+            $"[{DateTime.Now}] -INFORMATION- {user?.User?.Name} {text}.\n");
     }
     
     public static async Task LogInformation(UserDto user, AbstractCommand command)
@@ -27,7 +30,7 @@ public static class Log
             $"[{DateTime.Now}] -INFORMATION- {user.User?.Name} used {command.Name}.\n");
     }
     
-    public static async Task LogWarning(UserDto user, string text)
+    public static async Task LogWarning(Exception exception, UserDto? user = null)
     {
         if (!Directory.Exists("Storage/Logs/"))
         {
@@ -35,6 +38,6 @@ public static class Log
         }
         
         await File.AppendAllTextAsync("Storage/Logs/logs.log",
-            $"[{DateTime.Now}] -WARNING- {user.User?.Name} {text}.\n");
+            $"[{DateTime.Now}] -WARNING- {user?.User?.Name} {exception}.\n");
     }
 }

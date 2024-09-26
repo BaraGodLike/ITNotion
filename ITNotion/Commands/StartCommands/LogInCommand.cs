@@ -15,7 +15,7 @@ public class LogInCommand : AbstractCommand
     
     public override async Task<bool> Execute(string? parameter = null)
     {
-        var user = await new LogIn().Authorize();
+        var user = new LogIn().Authorize().Result;
         if (user == null) return false; 
         var taskLog = Log.LogInformation(new UserDto(user), "log in");
         var taskGoToMenu = new Menu(user).AsyncInit();

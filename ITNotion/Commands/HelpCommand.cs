@@ -13,10 +13,10 @@ public class HelpCommand : AbstractCommand
 
     public override async Task<bool> Execute(string? parameter = null)
     {
-        Console.WriteLine("Список доступных комманд:");
+        await Console.Out.WriteLineAsync("Список доступных комманд:");
         foreach (var key in _map)
         {
-            Console.WriteLine($"\t--{key.Key}\t{key.Value.Description}");
+            await Console.Out.WriteLineAsync($"\t--{key.Key}\t{key.Value.Description}");
         }
         
         return false;

@@ -9,7 +9,7 @@ public class Storage(IStorage repo) : IStorage
     public static string HashPassword(string password)
     {
         return Conversion.Hex(password.Select((t, i) => 
-            t * (int) Math.Pow(7, i)).Sum());
+            t * (long) Math.Pow(7, i)).Sum());
     }
 
     public bool HasNicknameInStorage(string name)
@@ -27,8 +27,8 @@ public class Storage(IStorage repo) : IStorage
         return await repo.GetUserFromStorage(name);
     }
 
-    public async Task CreateNewNote(Note note)
+    public async Task CreateNewNote(AbstractSource source)
     {
-        await repo.CreateNewNote(note);
+        await repo.CreateNewNote(source);
     }
 }

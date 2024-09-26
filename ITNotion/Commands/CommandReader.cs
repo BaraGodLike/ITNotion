@@ -1,4 +1,6 @@
-﻿namespace ITNotion.Commands;
+﻿using ITNotion.Exceptions;
+
+namespace ITNotion.Commands;
 
 public class CommandReader(User.User? user)
 {
@@ -8,13 +10,16 @@ public class CommandReader(User.User? user)
     {
         while (true)
         {
-            var command = Console.ReadLine();
-            if (command == null || command.Length < 2 || !command[..2].Equals("--"))
+            var command = await Console.In.ReadLineAsync();
+            if (command is { Length: >= 3 } && command[..2].Equals("--")) return command[2..];
+            try
             {
-                continue;
+                throw new UnknownCommandException();
             }
-
-            return command[2..];
+            catch (UnknownCommandException e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }

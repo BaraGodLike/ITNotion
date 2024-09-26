@@ -28,12 +28,19 @@ public class LocalRepository : IStorage
         return await JsonSerializer.DeserializeAsync<UserDto>(openStream);
     }
 
-    public async Task CreateNewNote(Note note)
+    public async Task CreateNewNote(AbstractSource source)
     {
-        if (!Directory.Exists(note.Path))
+        if (!Directory.Exists(source.Path))
         {
-            Directory.CreateDirectory(note.Path);
+            Directory.CreateDirectory(source.Path);
         }
-        await using var createStream = File.Create(note.Path);
+
+        if (source.GetType() == typeof(Note))
+        {
+            await using var createStream = File.Create(source.Path + source.Name);
+            return;
+        }
+
+        Directory.CreateDirectory(source.Path + source.Name);
     }
 }

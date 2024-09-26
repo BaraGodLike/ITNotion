@@ -54,16 +54,19 @@ public class LogIn : IAuthorization
         while (!IsCorrectPassword(password!))
         {
             await Console.Out.WriteLineAsync($"Неверный пароль. Осталось попыток: {attempt}");
-            Log.LogInformation(_userDto!, "failed login attempt");
-            await Console.Out.WriteAsync("Введите пароль: ");
+            var logTask = Log.LogInformation(_userDto, "failed login attempt");
+            var task = Console.Out.WriteAsync("Введите пароль: ");
+            await Task.WhenAll(logTask, task);
             password = await Console.In.ReadLineAsync();
             if (attempt-- <= 0) break;
         }
 
         if (attempt <= 0)
         {
-            await Console.Out.WriteLineAsync("Слишком много попыток!");
-            Log.LogInformation(_userDto!, "too many login attempts");
+            var writeTask = Console.Out.WriteLineAsync("Слишком много попыток!");
+            var logTask = Log.LogInformation(_userDto!, "too many login attempts");
+            
+            await Task.WhenAll(logTask, writeTask);
             return false;
         }
         Password = password!;

@@ -1,6 +1,6 @@
 ﻿namespace ITNotion.Notes;
 
-public class Note(string name, string directory) : AbstractSource(name, directory)
+public class Note(string name, DirectoryNotes? parent) : AbstractSource(name, parent)
 {
     
     public string[]? Backup { get; private set; }
