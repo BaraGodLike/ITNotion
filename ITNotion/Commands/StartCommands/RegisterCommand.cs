@@ -16,9 +16,10 @@ public class RegisterCommand : AbstractCommand
     public override async Task<bool> Execute(string? parameter = null)
     {
         var user = await new Registry().Authorize();
+        if (user == null) return false;
         var taskLog = Log.LogInformation(new UserDto(user), "register");
         var taskGoToMenu = new Menu(user!).AsyncInit();
-        await Task.WhenAll(taskLog, taskGoToMenu);
+        while (!Task.WhenAll(taskLog, taskGoToMenu).IsCompleted) {}
         return false;
     }
 }

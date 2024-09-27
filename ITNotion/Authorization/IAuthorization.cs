@@ -2,6 +2,8 @@
 
 public interface IAuthorization
 {
-    public Task<User.User?> Authorize();
-    
+    Task<User.User?> Authorize();
+    Task<bool> InputPassword();
+    Task InputName();
+
 }

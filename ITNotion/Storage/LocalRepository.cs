@@ -12,6 +12,7 @@ public class LocalRepository : IStorage
         {
             Directory.CreateDirectory("Storage/Users");
         }
+        
         await using var createStream = File.Create($"Storage/Users/{user.User!.Name}.json");
         await JsonSerializer.SerializeAsync(createStream, user);
     }
@@ -28,7 +29,7 @@ public class LocalRepository : IStorage
         return await JsonSerializer.DeserializeAsync<UserDto>(openStream);
     }
 
-    public async Task CreateNewNote(AbstractSource source)
+    public async Task CreateNewSource(AbstractSource source)
     {
         if (!Directory.Exists(source.Path))
         {
@@ -40,7 +41,6 @@ public class LocalRepository : IStorage
             await using var createStream = File.Create(source.Path + source.Name);
             return;
         }
-
         Directory.CreateDirectory(source.Path + source.Name);
     }
 }

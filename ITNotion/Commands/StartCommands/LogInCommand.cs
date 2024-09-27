@@ -15,11 +15,11 @@ public class LogInCommand : AbstractCommand
     
     public override async Task<bool> Execute(string? parameter = null)
     {
-        var user = new LogIn().Authorize().Result;
+        var user = await new LogIn().Authorize();
         if (user == null) return false; 
         var taskLog = Log.LogInformation(new UserDto(user), "log in");
         var taskGoToMenu = new Menu(user).AsyncInit();
-        await Task.WhenAll(taskLog, taskGoToMenu);
+        while (!Task.WhenAll(taskLog, taskGoToMenu).IsCompleted) {}
         return false;
     }
 }

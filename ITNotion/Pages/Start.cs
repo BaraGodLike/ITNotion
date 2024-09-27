@@ -30,6 +30,7 @@ public class Start : ICommandPage
         
         while (command == Help)
         {
+            
             await Help.Execute();
             Console.WriteLine($"\t--help\t{Help.Description}");
             command = await CommandHandler();

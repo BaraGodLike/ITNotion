@@ -10,12 +10,12 @@ public class User(string name, string? password)
     public string? Password { get; } = password;
     public CommandHistory CommandHistory { get; } = new();
     public DirectoryNotes Sources { get; } = new("Notes", null);
-    private readonly Storage.Storage _storage = new(new LocalRepository());
+    private static readonly Storage.Storage Storage = new(new LocalRepository());
 
     public async Task AddSource(AbstractSource source)
     {
         var t1 = Sources.AddSource(source);
-        var t2 = _storage.CreateNewNote(source);
+        var t2 = Storage.CreateNewSource(source);
         await Task.WhenAll(t1, t2);
     }
 }

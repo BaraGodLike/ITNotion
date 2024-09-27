@@ -15,7 +15,7 @@ public class ListCommand : AbstractUserCommand
     
     public override async Task<bool> Execute(string? parameter = null)
     {
-        await new ListPage(User).AsyncInit();
+        while (!new ListPage(User).AsyncInit().IsCompleted) {}
         return false;
     }
 }

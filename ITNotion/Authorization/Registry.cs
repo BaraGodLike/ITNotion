@@ -14,7 +14,7 @@ public partial class Registry : IAuthorization
     public async Task<User.User?> Authorize()
     {
         await InputName();
-        await InputPassword();
+        if (!await InputPassword()) return _user;
         
         _user = new User.User(Name!, Password!);
         
@@ -25,7 +25,7 @@ public partial class Registry : IAuthorization
         return _user;
     }
 
-    private async Task InputName()
+    public async Task InputName()
     {
         while (true)
         {
@@ -48,7 +48,7 @@ public partial class Registry : IAuthorization
         }
     }
 
-    private async Task InputPassword()
+    public async Task<bool> InputPassword()
     {
         while (true)
         {
@@ -75,7 +75,7 @@ public partial class Registry : IAuthorization
                 passwordRepeat = await Console.In.ReadLineAsync();
             }
             Password = Storage.Storage.HashPassword(password);
-            break;
+            return true;
         }
     }
 

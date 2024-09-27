@@ -27,8 +27,8 @@ public class Storage(IStorage repo) : IStorage
         return await repo.GetUserFromStorage(name);
     }
 
-    public async Task CreateNewNote(AbstractSource source)
+    public async Task CreateNewSource(AbstractSource source)
     {
-        await repo.CreateNewNote(source);
+        await repo.CreateNewSource(source);
     }
 }

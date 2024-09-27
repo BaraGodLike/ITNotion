@@ -11,18 +11,18 @@ public class ListPage(User.User user) : ICommandPage
 {
     private User.User User { get; } = user;
     private CommandReader? _commandReader;
-    private DirectoryNotes? _currentDirectory;
+    public DirectoryNotes? CurrentDirectory { get; private set; }
     
     public async Task<ICommandPage> AsyncInit()
     {
-        _currentDirectory = User.Sources;
+        CurrentDirectory = User.Sources;
         
         _commandReader = new CommandReader(User);
         _commands = new Dictionary<string, AbstractCommand>
         {
             {"cd", new CdCommand(User, this)},
-            {"create", new CreateCommand(User)},
-            {"menu", null},
+            {"create", new CreateCommand(User, this)},
+            {"menu", new MenuCommand(User)},
             {"open", null},
             {"delete", null}
         };
@@ -55,7 +55,7 @@ public class ListPage(User.User user) : ICommandPage
     public async Task PrintCurrentDirectory()
     {
         Console.WriteLine("-: папка, *: файл");
-        foreach (var file in _currentDirectory!.Directory!)
+        foreach (var file in CurrentDirectory!.Directory)
         {
             await Console.Out.WriteLineAsync(file.ToString());
         }
@@ -63,13 +63,22 @@ public class ListPage(User.User user) : ICommandPage
 
     public async Task ToDirectory(string? name)
     {
+
+        if ((bool)name?.Equals("-"))
+        {
+            if (CurrentDirectory!.Parent == null) return;
+            CurrentDirectory = CurrentDirectory!.Parent;
+            return;
+
+        }
+        
         try
         {
-            foreach (var source in _currentDirectory!.Directory
+            foreach (var source in CurrentDirectory!.Directory
                          .Where(source => source.GetType() == typeof(DirectoryNotes))
                          .Where(source => source.Name.Equals(name)))
             {
-                _currentDirectory = (DirectoryNotes)source;
+                CurrentDirectory = (DirectoryNotes)source;
                 return;
             }
             
@@ -86,7 +95,7 @@ public class ListPage(User.User user) : ICommandPage
     {   
         var commandString = await _commandReader!.GetCommand();
         if (commandString == "help") return _help!;
-        var command = _commands!.GetValueOrDefault(commandString);
+        var command = _commands!.GetValueOrDefault(commandString[..commandString.IndexOf(' ')]);
         while (command == null) 
         {
             try

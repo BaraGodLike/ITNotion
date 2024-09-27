@@ -3,7 +3,7 @@
 public abstract class AbstractSource(string name, DirectoryNotes? parent) : IComparer<AbstractSource>
 {
     public string Path { get; init; } = $"{parent?.Path}/{parent?.Name}/";
-    public DirectoryNotes? Parent { get; init; } = parent;
+    public DirectoryNotes? Parent { get; set; } = parent;
 
     public readonly string Name = name;
     public int Compare(AbstractSource? x, AbstractSource? y)

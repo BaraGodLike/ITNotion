@@ -23,7 +23,7 @@ public class LogIn : IAuthorization
         return _user;
     }
 
-    private async Task InputName()
+    public async Task InputName()
     {
         while (true)
         {
@@ -46,7 +46,7 @@ public class LogIn : IAuthorization
         }
     }
 
-    private async Task<bool> InputPassword()
+    public async Task<bool> InputPassword()
     {
         await Console.Out.WriteAsync("Введите пароль: ");
         var password = await Console.In.ReadLineAsync();

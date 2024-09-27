@@ -17,8 +17,7 @@ public class LogOutCommand : AbstractUserCommand
         var taskLog = Log.LogInformation(new UserDto(User), "log out.");
         var write = Console.Out.WriteLineAsync("Вы вышли из аккаунта.");
         await Task.WhenAll(taskLog, write);
-        await new Start().AsyncInit();
-        
+        while (!new Start().AsyncInit().IsCompleted) {}
         return false;
     }
 }
